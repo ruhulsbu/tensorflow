@@ -39,6 +39,18 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "pos",
+    srcs = [
+        "pos.py",
+    ],
+    deps = [
+        ":data_utils",
+        ":seq2seq_model",
+        "//tensorflow:tensorflow_py",
+    ],
+)
+
 py_test(
     name = "translate_test",
     size = "medium",

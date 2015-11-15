@@ -188,6 +188,8 @@ def sentence_to_token_ids(sentence, vocabulary,
     words = tokenizer(sentence)
   else:
     words = basic_tokenizer(sentence)
+    print(words)
+    print("Length of Basic Tokens = " + str(len(words)))
   if not normalize_digits:
     return [vocabulary.get(w, UNK_ID) for w in words]
   # Normalize digits by 0 before looking words up in the vocabulary.
@@ -267,3 +269,30 @@ def prepare_wmt_data(data_dir, en_vocabulary_size, fr_vocabulary_size):
   return (en_train_ids_path, fr_train_ids_path,
           en_dev_ids_path, fr_dev_ids_path,
           en_vocab_path, fr_vocab_path)
+
+
+def prepare_pos_data(data_dir, text_vocabulary_size, tags_vocabulary_size):
+  train_path = data_dir + "/train_pos"
+  dev_path = data_dir + "/dev_pos"
+
+  # Create vocabularies of the appropriate sizes.
+  tags_vocab_path = os.path.join(data_dir, "vocab%d.tags" % tags_vocabulary_size)
+  text_vocab_path = os.path.join(data_dir, "vocab%d.txt" % text_vocabulary_size)
+  create_vocabulary(tags_vocab_path, train_path + ".tags", tags_vocabulary_size)
+  create_vocabulary(text_vocab_path, train_path + ".txt", text_vocabulary_size)
+
+  # Create token ids for the training data.
+  tags_train_ids_path = train_path + (".ids%d.tags" % tags_vocabulary_size)
+  text_train_ids_path = train_path + (".ids%d.txt" % text_vocabulary_size)
+  data_to_token_ids(train_path + ".tags", tags_train_ids_path, tags_vocab_path)
+  data_to_token_ids(train_path + ".txt", text_train_ids_path, text_vocab_path)
+
+  # Create token ids for the development data.
+  tags_dev_ids_path = dev_path + (".ids%d.tags" % tags_vocabulary_size)
+  text_dev_ids_path = dev_path + (".ids%d.txt" % text_vocabulary_size)
+  data_to_token_ids(dev_path + ".tags", tags_dev_ids_path, tags_vocab_path)
+  data_to_token_ids(dev_path + ".txt", text_dev_ids_path, text_vocab_path)
+
+  return (text_train_ids_path, tags_train_ids_path,
+          text_dev_ids_path, tags_dev_ids_path,
+          text_vocab_path, tags_vocab_path)
