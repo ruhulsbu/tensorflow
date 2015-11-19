@@ -121,6 +121,7 @@ class PTBModel(object):
     logits = tf.nn.xw_plus_b(output,
                              tf.get_variable("softmax_w", [size, vocab_size]),
                              tf.get_variable("softmax_b", [vocab_size]))
+    print(self._targets)
     loss = seq2seq.sequence_loss_by_example([logits],
                                             [tf.reshape(self._targets, [-1])],
                                             [tf.ones([batch_size * num_steps])],
@@ -220,7 +221,7 @@ class LargeConfig(object):
 
 def run_epoch(session, m, data, eval_op, verbose=False):
   """Runs the model on the given data."""
-  epoch_size = ((len(data) // m.batch_size) - 1) // m.num_steps
+  epoch_size = ((reader.length(data) // m.batch_size) - 1) // m.num_steps
   start_time = time.time()
   costs = 0.0
   iters = 0
@@ -257,7 +258,7 @@ def main(unused_args):
   if not FLAGS.data_path:
     raise ValueError("Must set --data_path to PTB data directory")
 
-  raw_data = reader.ptb_raw_data(FLAGS.data_path)
+  raw_data = reader.pos_raw_data(FLAGS.data_path)
   train_data, valid_data, test_data, _ = raw_data
 
   config = get_config()
